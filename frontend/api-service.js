@@ -139,7 +139,7 @@ class AccessGuruAPI {
   }
 
   /**
-   * Generate PDF report
+   * Generate HTML report (opens in new tab, user saves as PDF via browser)
    */
   async generatePDFReport(reportData) {
     try {
@@ -150,7 +150,7 @@ class AccessGuruAPI {
         issues: reportData.issues || []
       };
 
-      const response = await fetch(`${API_CONFIG.LLM_API_URL}/api/generate_report`, {
+      const response = await fetch(`${API_CONFIG.LLM_API_URL}/api/generate_report_html`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -159,14 +159,20 @@ class AccessGuruAPI {
       });
 
       if (!response.ok) {
-        throw new Error(`PDF API error: ${response.status}`);
+        throw new Error(`Report API error: ${response.status}`);
       }
 
-      // Return blob for download
-      const blob = await response.blob();
-      return blob;
+      // Get HTML and open in new tab
+      const html = await response.text();
+      const blob = new Blob([html], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      
+      // Open in new window - user can Print to PDF from there
+      window.open(url, '_blank');
+      
+      return true;
     } catch (error) {
-      console.error('Error generating PDF:', error);
+      console.error('Error generating report:', error);
       return null;
     }
   }
@@ -344,5 +350,10 @@ class AccessGuruAPI {
   }
 }
 
-// Create singleton instance
+// Create singleton instance and make it globally available
 const accessGuruAPI = new AccessGuruAPI();
+
+// Ensure it's accessible in Chrome extension context
+if (typeof window !== 'undefined') {
+  window.accessGuruAPI = accessGuruAPI;
+}

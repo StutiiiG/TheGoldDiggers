@@ -1,4 +1,4 @@
- // =====================================================
+// =====================================================
 // AccessGuru Popup (popup.js)
 // - Runs axe-core on the active tab
 // - Enhances violations via ML API (or static fallback)
@@ -548,22 +548,18 @@ async function exportReport() {
       };
     }));
 
-    const pdfBlob = await accessGuruAPI.generatePDFReport({
+    const success = await accessGuruAPI.generatePDFReport({
       siteName: new URL(currentResults.url).hostname,
       scannedUrl: currentResults.url,
       generatedFor: 'AccessGuru User',
       issues
     });
 
-    if (pdfBlob) {
-      const url = URL.createObjectURL(pdfBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `accessibility-report-${new Date().getTime()}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
+    if (success) {
+      console.log('✅ Report opened in new tab - use Print to PDF to save');
+      alert('Report opened in new tab!\n\nClick the "📄 Save as PDF" button or press Ctrl+P (Cmd+P on Mac) to download.');
     } else {
-      throw new Error('PDF generation failed');
+      throw new Error('Report generation failed');
     }
 
   } catch (error) {

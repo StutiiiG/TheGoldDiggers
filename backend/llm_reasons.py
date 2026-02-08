@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 from openai import OpenAI
 from dotenv import load_dotenv
 import uvicorn
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, HTMLResponse
 from jinja2 import Environment, BaseLoader
 from weasyprint import HTML
 import io
@@ -1039,6 +1039,198 @@ REPORT_TEMPLATE = """
 </body>
 </html>
 """
+
+@app.post("/api/generate_report_html", response_class=HTMLResponse)
+async def generate_html_report(request: Request):
+    """
+    Generate HTML report that user can save as PDF using browser's Print to PDF.
+    Much simpler than WeasyPrint - no extra dependencies needed!
+    """
+    try:
+        body = await request.json()
+        payload = ReportRequest(**body)
+
+        # Build styled HTML report
+        html = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Accessibility Report - {payload.site_name or 'Website'}</title>
+    <style>
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }}
+        h1 {{ color: #1e293b; margin-bottom: 10px; }}
+        .meta {{ color: #666; font-size: 14px; margin-bottom: 30px; }}
+        .summary {{
+            background: #f8fafc;
+            border-left: 4px solid #3b82f6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }}
+        .issue {{
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            break-inside: avoid;
+        }}
+        .critical {{ border-left: 4px solid #dc2626; }}
+        .serious {{ border-left: 4px solid #ea580c; }}
+        .moderate {{ border-left: 4px solid #f59e0b; }}
+        .minor {{ border-left: 4px solid #84cc16; }}
+        .badge {{
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: white;
+        }}
+        .badge-critical {{ background: #dc2626; }}
+        .badge-serious {{ background: #ea580c; }}
+        .badge-moderate {{ background: #f59e0b; }}
+        .badge-minor {{ background: #84cc16; }}
+        .section {{ margin: 15px 0; }}
+        .section-title {{ font-weight: 600; color: #1e293b; margin-bottom: 8px; }}
+        .code {{ 
+            background: #f1f5f9; 
+            padding: 2px 6px; 
+            border-radius: 3px; 
+            font-family: monospace;
+            font-size: 13px;
+        }}
+        @media print {{
+            body {{ margin: 0; padding: 20px; }}
+            .issue {{ page-break-inside: avoid; }}
+            .print-button {{ display: none; }}
+        }}
+        .print-button {{
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }}
+        .print-button:hover {{ background: #2563eb; }}
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">📄 Save as PDF</button>
+    
+    <h1>Accessibility Report</h1>
+    <div class="meta">
+        Generated: {datetime.now().strftime("%Y-%m-%d %H:%M UTC")}<br>
+        Site: {payload.site_name or 'N/A'}<br>
+        URL: {payload.scanned_url or 'N/A'}<br>
+        For: {payload.generated_for or 'N/A'}
+    </div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <p><strong>Total Issues:</strong> {len(payload.issues)}</p>
+        <p>
+            Critical: {sum(1 for i in payload.issues if i.impact == 'critical')} | 
+            Serious: {sum(1 for i in payload.issues if i.impact == 'serious')} | 
+            Moderate: {sum(1 for i in payload.issues if i.impact == 'moderate')} | 
+            Minor: {sum(1 for i in payload.issues if i.impact == 'minor')}
+        </p>
+    </div>
+
+    <h2>Issues Found</h2>
+"""
+
+        # Add each issue
+        for idx, issue in enumerate(payload.issues, 1):
+            severity_class = issue.impact or 'moderate'
+            
+            html += f"""
+    <div class="issue {severity_class}">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+            <h3 style="margin: 0;">#{idx}: {issue.violation_id}</h3>
+            <span class="badge badge-{severity_class}">{issue.impact.upper() if issue.impact else 'UNKNOWN'}</span>
+        </div>
+        
+        <div class="section">
+            <div class="section-title">What's wrong:</div>
+            <p>{issue.fix.whats_wrong}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Who this affects:</div>
+            <p>{issue.fix.who_this_affects}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Why it matters:</div>
+            <p>{issue.fix.why_it_matters}</p>
+        </div>
+
+        <div class="section">
+            <div class="section-title">How to fix:</div>
+            <p>{issue.fix.how_to_fix}</p>
+        </div>
+"""
+
+            # Add severity explanation if available
+            if issue.severity:
+                html += f"""
+        <div class="section" style="background: #fef3c7; padding: 12px; border-radius: 4px;">
+            <div class="section-title">🧠 ML Severity Analysis:</div>
+            <p>{issue.severity.severity_explanation}</p>
+            <p style="font-size: 13px; color: #666;">
+                Predicted: {issue.severity.predicted_severity}/5 | {issue.severity.confidence_note}
+            </p>
+        </div>
+"""
+
+            # Add target info
+            if issue.target:
+                html += f"""
+        <div class="section">
+            <div class="section-title">Location:</div>
+            <code class="code">{issue.target}</code>
+        </div>
+"""
+
+            html += """
+    </div>
+"""
+
+        # Close HTML
+        html += """
+    <div class="meta" style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
+        Generated by <strong>AccessGuru</strong> | Powered by AI
+    </div>
+
+    <script>
+        // Auto-focus print button on page load
+        document.querySelector('.print-button').focus();
+    </script>
+</body>
+</html>
+"""
+
+        return HTMLResponse(content=html)
+
+    except Exception as e:
+        print(f"❌ HTML report generation error: {e}")
+        raise HTTPException(status_code=500, detail={"error": "Report generation failed", "detail": str(e)})
+
 
 @app.post("/api/generate_report", response_model=None)
 async def generate_accessibility_report_pdf(request: Request):
