@@ -1,0 +1,7 @@
+openai
+fastapi
+pydantic
+python-dotenv
+uvicorn
+jinja2 
+weasyprint
