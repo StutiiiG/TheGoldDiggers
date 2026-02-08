@@ -940,5 +940,5 @@
     }
   };
 
-  console.log('✅ AccessGuru overlay system loaded');
+  console.log('AccessGuru overlay system loaded');
 })();

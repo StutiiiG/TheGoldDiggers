@@ -406,7 +406,7 @@ async def predict_with_shap(input_data: PredictionInput):
 if __name__ == "__main__":
     import uvicorn
 
-    print("🚀 AccessGuru ML API starting on http://0.0.0.0:8000")
-    print("   📚 API docs: http://localhost:8000/docs")
-    print("   ❤️  Health check: http://localhost:8000/health")
+    print("AccessGuru ML API starting on http://0.0.0.0:8000")
+    print("   API docs: http://localhost:8000/docs")
+    print("   Health check: http://localhost:8000/health")
     uvicorn.run(app, host="0.0.0.0", port=8000)

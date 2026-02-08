@@ -1227,7 +1227,7 @@ async def generate_html_report(request: Request):
         return HTMLResponse(content=html)
 
     except Exception as e:
-        print(f"❌ HTML report generation error: {e}")
+        print(f"HTML report generation error: {e}")
         raise HTTPException(status_code=500, detail={"error": "Report generation failed", "detail": str(e)})
 
 
@@ -1282,13 +1282,13 @@ async def generate_accessibility_report_pdf(request: Request):
     except HTTPException:
         raise
     except Exception as e:
-        print(f"❌ /api/generate_accessibility_report_pdf error: {e}")
+        print(f" /api/generate_accessibility_report_pdf error: {e}")
         raise HTTPException(status_code=500, detail={"error": "Report generation failed", "detail": str(e)})
 
 
 
 if __name__ == "__main__":
-    print(f"🚀 AccessGuru LLM server starting on http://localhost:{PORT}")
+    print(f"AccessGuru LLM server starting on http://localhost:{PORT}")
     print(f"   Model: {MODEL}")
     print(f"   Health check: http://localhost:{PORT}/health")
     uvicorn.run(app, host="0.0.0.0", port=PORT)
