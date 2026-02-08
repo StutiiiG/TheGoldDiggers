@@ -200,8 +200,11 @@ def load_model() -> bool:
     global model, artifacts, explainer
 
     try:
-        model_path = os.path.join("models", "xgb_model.json")
-        art_path = os.path.join("models", "model_artifacts.pkl")
+        # model_path = os.path.join("models", "xgb_model.json")
+        # art_path = os.path.join("models", "model_artifacts.pkl")
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        model_path = os.path.join(script_dir, "models", "xgb_model.json")
+        art_path = os.path.join(script_dir, "models", "model_artifacts.pkl")
 
         model = xgb.Booster()
         model.load_model(model_path)

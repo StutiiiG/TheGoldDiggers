@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 import uvicorn
 from fastapi.responses import StreamingResponse, HTMLResponse
 from jinja2 import Environment, BaseLoader
-from weasyprint import HTML
 import io
 from datetime import datetime
 
