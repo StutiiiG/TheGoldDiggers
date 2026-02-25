@@ -1,5 +1,4 @@
-# AccessLens
-## 🏆 UW Datathon 2026 Winner
+# AccessLens -  🏆 UW Datathon 2026 Winner
 
 **AI-Powered Accessibility Testing Chrome Extension**
 
