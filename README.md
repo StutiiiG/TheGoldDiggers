@@ -162,8 +162,6 @@ The compact model size enables efficient deployment without significant memory p
 
 Typical scans complete well under interactive latency thresholds, demonstrating that ML-based accessibility prioritization can be integrated into browser workflows without noticeable user delay.
 
----
-
 ##  Failure Analysis
 
 While the multiclass violation classifier achieved strong overall performance, the **Semantic violation class exhibited lower recall (0.17)** compared to Syntactic and Layout categories. This behavior is expected because semantic accessibility issues often depend on contextual meaning (e.g., ambiguous link text, misleading labels) that is not fully captured by structural HTML or ARIA features alone.
