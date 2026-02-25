@@ -134,6 +134,75 @@ python backend/llm_reasons.py
 - Jinja2 (HTML templating)
 - Python 3.8+
 
+## System Perfromance 
+
+AccessLens was designed for lightweight, real-time analysis within the browser environment. Performance measurements show the system introduces minimal overhead while providing ML-driven prioritization.
+
+### Model Footprint
+
+- **xgb_model.json:** 1.98 MB  
+- **model_artifacts.pkl:** 3.05 KB  
+- **Total model size:** ~1.98 MB  
+
+The compact model size enables efficient deployment without significant memory pressure.
+
+### Inference Performance
+
+| Page Type | Violations | Total Time | Per-Violation |
+|----------|-----------|-----------|--------------|
+| Simple | 3 | 6.86 ms | 2.29 ms |
+| Medium | 8 | 19.53 ms | 2.44 ms |
+| Heavy | 20 | 63.39 ms | 3.17 ms |
+
+### Extension Scan Latency
+
+- Simple page: ~8 ms  
+- Medium page: ~20 ms  
+- Heavy page: ~63 ms  
+
+Typical scans complete well under interactive latency thresholds, demonstrating that ML-based accessibility prioritization can be integrated into browser workflows without noticeable user delay.
+
+---
+
+##  Failure Analysis
+
+While the multiclass violation classifier achieved strong overall performance, the **Semantic violation class exhibited lower recall (0.17)** compared to Syntactic and Layout categories. This behavior is expected because semantic accessibility issues often depend on contextual meaning (e.g., ambiguous link text, misleading labels) that is not fully captured by structural HTML or ARIA features alone.
+
+Error inspection indicates the model performs reliably on deterministic structural violations but struggles when accessibility depends on human-perceived intent rather than explicit markup patterns. In particular, violations involving ambiguous anchor text and context-dependent labeling were the most common sources of false negatives.
+
+Future improvements could incorporate richer textual embeddings, larger DOM context windows, or multimodal signals (e.g., visual layout features) to better capture semantic accessibility failures and improve recall on context-heavy violations.
+
+---
+
+## Feature Ablation Study
+
+To validate the contribution of our multi-level feature design, we conducted an ablation study by systematically removing structural and contextual feature groups while keeping the modeling pipeline fixed.
+
+### Results
+
+| Feature Set | Features | Macro F1 |
+|------------|---------|----------|
+| Full feature set | 24 | 0.80 |
+| – Structural features | 14 | 0.45 |
+| – Contextual features | 10 | 0.74 |
+
+### Key Findings
+
+- **Structural features contribution:** +0.35 Macro F1 (largest gain)  
+- **Contextual features contribution:** +0.06 Macro F1 (consistent improvement)
+
+Structural features (DOM-level signals such as tag encoding, ARIA attributes, and element types) contribute the largest performance gain, confirming that element-specific signals are critical for detecting accessibility violations. Removing contextual features produces smaller but consistent degradation, validating the multi-level feature design.
+
+### Most Important Features
+
+1. **contrast_ratio (0.37)** — Contextual  
+2. **avg_text_len_per_tag (0.06)** — Contextual  
+3. **is_aria_related (0.05)** — Structural  
+
+These results validate the importance of combining rule-level, structural, and contextual signals for robust accessibility severity modeling.
+
+---
+
 ## Project Structure
 
 ```
