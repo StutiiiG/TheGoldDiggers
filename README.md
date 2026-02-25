@@ -1,6 +1,6 @@
 # AccessLens -  🏆 UW Datathon 2026 Winner
 
-**AI-Powered Accessibility Testing Chrome Extension**
+**End-to-End ML System for Real-Time Web Accessibility Analysis**
 
 AccessLens is an intelligent Chrome extension that combines machine learning and large language models to automatically detect, explain, and help fix web accessibility issues. It uses XGBoost for severity prediction, SHAP for explainability, and GPT-4 for human-readable explanations.
 
