@@ -114,7 +114,7 @@ python backend/llm_reasons.py
 - Shows which features contributed to the severity prediction
 - Helps understand the AI's reasoning
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 **Frontend:**
 - Chrome Extension API (Manifest V3)
@@ -170,8 +170,6 @@ Error inspection indicates the model performs reliably on deterministic structur
 
 Future improvements could incorporate richer textual embeddings, larger DOM context windows, or multimodal signals (e.g., visual layout features) to better capture semantic accessibility failures and improve recall on context-heavy violations.
 
----
-
 ## Feature Ablation Study
 
 To validate the contribution of our multi-level feature design, we conducted an ablation study by systematically removing structural and contextual feature groups while keeping the modeling pipeline fixed.
@@ -198,8 +196,6 @@ Structural features (DOM-level signals such as tag encoding, ARIA attributes, an
 3. **is_aria_related (0.05)** — Structural  
 
 These results validate the importance of combining rule-level, structural, and contextual signals for robust accessibility severity modeling.
-
----
 
 ## Project Structure
 
