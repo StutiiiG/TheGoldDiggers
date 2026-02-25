@@ -4,6 +4,13 @@
 
 AccessLens is an intelligent Chrome extension that combines machine learning and large language models to automatically detect, explain, and help fix web accessibility issues. It uses XGBoost for severity prediction, SHAP for explainability, and GPT-4 for human-readable explanations.
 
+## 🎬 Live Demo
+
+<p align="center">
+  <img src="demo/accesslens-demo.gif" alt="AccessLens Demo" width="900"/>
+</p>
+
+
 Performance: 85.8% severity prediction accuracy • ~20 ms typical scan latency • 1.98 MB model footprint
 
 ##  Features
