@@ -8,7 +8,7 @@ Performance: 85.8% severity prediction accuracy • ~20 ms typical scan latency 
 
 ##  Features
 
-- **ML-Powered Severity Prediction** - XGBoost model predicts violation severity (2-5 scale)
+- **ML-Powered Severity Prediction** — Hyperparameter-tuned XGBoost model predicts violation severity (2–5 scale)
 - **SHAP Explainability** - Understand why the AI made each prediction
 - **LLM-Generated Explanations** - GPT-4 provides clear, actionable guidance
 - **Visual Violation Highlighting** - See issues directly on the page
